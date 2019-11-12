@@ -51,13 +51,13 @@ private:
         char county[county_length];
         //These two variables are used to count how much of their respective arrays are in use.
         //For example, if street[] contained "James", then street_length would be 5.
-        int street_length = 0;
-        int county_length = 0;
+        int street_length = 0; // might caused [Warning] non-static data member initializers only available with -std=c++11 or -std=gnu++11
+        int county_length = 0; // might caused [Warning] non-static data member initializers only available with -std=c++11 or -std=gnu++11
     };
 
     struct Block
     {	
-        int record_count = 0; //Denotes how many records are in this block. "0" indicates an inactive block
+        int record_count = 0; //might caused [Warining] //Denotes how many records are in this block. "0" indicates an inactive block
         int next; //RBN of the next block of like type
         int prev; //RBN of the previous block of like type (only used in active blocks)
         Record data[max_records]; //Array containing all records in the block
