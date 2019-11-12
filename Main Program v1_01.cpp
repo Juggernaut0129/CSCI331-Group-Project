@@ -46,8 +46,8 @@ private:
         int zip;
         float latitude;
         float longitude;
+	char street[name_length];
         char state[state_length];
-        char street[name_length];
         char county[county_length];
         //These two variables are used to count how much of their respective arrays are in use.
         //For example, if street[] contained "James", then street_length would be 5.
