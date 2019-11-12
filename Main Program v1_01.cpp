@@ -56,7 +56,7 @@ private:
     };
 
     struct Block
-    {
+    {	
         int record_count = 0; //Denotes how many records are in this block. "0" indicates an inactive block
         int next; //RBN of the next block of like type
         int prev; //RBN of the previous block of like type (only used in active blocks)
@@ -142,7 +142,7 @@ void S_Set::insert() {
 
 int main()
 {   S_Set sSet;
-	sSet.insert(); //calling public insert()
+    sSet.insert(); //calling public insert()
  
     cout << "That's all, folks!" << endl;
     return 0;
