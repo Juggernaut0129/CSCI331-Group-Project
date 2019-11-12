@@ -142,7 +142,12 @@ void S_Set::insert() {
 
 int main()
 {   S_Set sSet;
-    sSet.insert(); //calling public insert()
+    char add;
+    do {
+		sSet.insert();
+		cout << endl << "Add more record(Y/N): ";
+		cin >> add;
+	} while(add == 'Y' || add == 'Y');
  
     cout << "That's all, folks!" << endl;
     return 0;
