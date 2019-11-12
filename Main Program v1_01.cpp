@@ -83,11 +83,65 @@ private:
     int first_available; //Contains the RBN of the first inactive block
 };
 
+S_Set::S_Set() {
+	//need body//
+}
 
+S_Set::~S_Set() {
+    //need body//
+}
+
+//public insert() function
+void S_Set::insert() {
+	Record record;
+	string street, state, county;
+	//Prompts the user for all relevant information...
+	cout << ".....Creating a new record..... " << endl;
+	cout << "Enter zip code: ";
+	cin >> record.zip;
+	cout << "Enter street name: ";
+	cin >> street;
+	record.street_length = street.length();		//set street length
+	strcpy(record.street, street.c_str());		//copy string street to array char
+	cout << "Enter state name: ";
+	cin >> state;
+	strcpy(record.state, state.c_str());		//copy string state to array char
+	cout << "Enter county: ";
+	cin >> county;
+	record.county_length = county.length();		//set county length
+	strcpy(record.county, county.c_str());		//copy string county to array char
+	cout << "Enter latitude: ";
+	cin >> record.latitude;
+	cout << "Enter longitude: ";
+	cin >> record.longitude;
+	
+/*	//Output record
+	cout << "-----New Record-----" << endl;
+	cout << "Zip code: " << record.zip << endl;
+	cout << "Street name: ";
+	for(int i = 0; i < record.street_length; i++)
+		cout << record.street[i];
+	cout << endl;
+	cout << "State: ";
+	for(int i = 0; i < state_length; i++) 
+		cout << record.state[i];
+	cout << endl;
+	cout << "County: ";
+	for(int i = 0; i < record.county_length; i++)
+		cout << record.county[i];
+	cout << endl;
+	cout << "Latitude: " << record.latitude << endl;
+	cout << "Longitude: " << record.longitude << endl;
+*/		
+	//Private version of insert
+//	private_insert(record);	
+}
 
 
 int main()
-{
+{   S_Set sSet;
+	sSet.insert(); //calling public insert()
+ 
     cout << "That's all, folks!" << endl;
     return 0;
 }
