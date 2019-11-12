@@ -93,7 +93,7 @@ S_Set::~S_Set() {
     //need body//
 }
 
-//public insert() function
+//public insert() function by Khuong
 void S_Set::insert() {
 	Record record;
 	string street, state, county;
