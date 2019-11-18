@@ -98,10 +98,11 @@ S_Set::~S_Set() {
 
 //Reading txt data into record, then add record into block and add block into addresses[] by khuong
 void S_Set::create() {
-	string zip_street, state_county, latitude, longitude;
-	string zip, street, state, county;
+	string zip_street, state_county;
+	string zip, street, state, county, string_lati, string_longi;
 	string fileName = "data.txt";
 	int i, j = 0;
+	float latitude, longitude;
 	Record record;
 	Block new_block, prev_block;
 /*	cout << "Enter filename: " << endl;
@@ -109,24 +110,29 @@ void S_Set::create() {
 	
 	new_sequence.open(fileName.c_str());
 	if(new_sequence.is_open()){
-		while(new_sequence >> zip_street >> state_county >> latitude >> longitude) {
+		while(new_sequence >> zip_street >> state_county >> string_lati >> string_longi) {
 			stringstream toInt;
+			stringstream toFloat;
+			
 			int temp;
+			float temp2;
+			
 			readIn(zip_street, zip, street);
 			readIn(state_county, state, county);
 			toInt << zip;
 			toInt >> temp;
-			
 			record.zip = temp;
 			strcpy(record.street, street.c_str());
 			strcpy(record.state, state.c_str());
 			record.county_length = county.length();
-			toInt << latitude;
-			toInt >> temp;
-			record.latitude = temp;
-			toInt << longitude;
-			toInt >> temp;
-			record.longitude = temp;
+		
+			toFloat << string_lati;
+			toFloat >> temp2;
+			record.latitude = temp2;
+			toFloat.clear();
+			toFloat << string_longi;
+			toFloat >> temp2;
+			record.longitude = temp2;
 			
 			if(i > 3) {
 				if(j > 0) {
@@ -136,10 +142,9 @@ void S_Set::create() {
 //					cout << j << endl;
 				}
 				addresses[j++] = new_block;
-				cout << new_block.record_count << endl;
+//				cout << new_block.record_count << endl;
 				i = 0;
 			}
-			cout << temp << endl;
 			new_block.data[i] = record;
 			new_block.record_count = i+1;
 			i++;
@@ -159,10 +164,18 @@ void S_Set::create() {
 	
 	Block block;
 	Record r;
-	block = addresses[3];
-	r = block.data[2];
-	cout << "HERE: " << r.zip << endl;
-	
+/*	//Output records within blocks and blocks within addresses[]
+	for(int i = 0; i < j; i++) {
+		block = addresses[i];
+		cout << "Block " << i <<":" << endl;
+		for(int k = 0; k < block.record_count; k++) {
+			r = block.data[k];
+			cout << "Record " << k << " :" 
+			     << r.zip << r.street << " "
+			     << r.state << r.county << " "
+			     << r.latitude << " " << r.longitude << endl;
+		}	
+	} */
 //	cout << block.prev << endl;
 	
 }
