@@ -72,7 +72,7 @@ private:
 
     Index_Node index[max_records * max_blocks];//Array containing the maximum possible number of records, though most will likely go unused
     int index_length; //Tells how many of the spaces are actually in use
-
+    void readIn(string aString, string& anInput1, string &anInput2); //reading all the string in txt file and put them into records
     void private_insert(Record r); //Private version of insert, searches the block for an active block with room. If none are found, populate and try again
     bool private_delete(int key); //Searches the index, and if possible deletes the record indicated by this key. Returns the success or failure to the public version
     void private_update(int key); //Finds the record in the index, then has the user input all variable changes
@@ -91,6 +91,97 @@ S_Set::S_Set() {
 
 S_Set::~S_Set() {
     //need body//
+}
+S_Set::~S_Set() {
+	
+}
+
+//Reading txt data into record, then add record into block and add block into addresses[] by khuong
+void S_Set::create() {
+	string zip_street, state_county, latitude, longitude;
+	string zip, street, state, county;
+	string fileName = "data.txt";
+	int i, j = 0;
+	Record record;
+	Block new_block, prev_block;
+/*	cout << "Enter filename: " << endl;
+	cin >> fileName; */
+	
+	new_sequence.open(fileName.c_str());
+	if(new_sequence.is_open()){
+		while(new_sequence >> zip_street >> state_county >> latitude >> longitude) {
+			stringstream toInt;
+			int temp;
+			readIn(zip_street, zip, street);
+			readIn(state_county, state, county);
+			toInt << zip;
+			toInt >> temp;
+			
+			record.zip = temp;
+			strcpy(record.street, street.c_str());
+			strcpy(record.state, state.c_str());
+			record.county_length = county.length();
+			toInt << latitude;
+			toInt >> temp;
+			record.latitude = temp;
+			toInt << longitude;
+			toInt >> temp;
+			record.longitude = temp;
+			
+			if(i > 3) {
+				if(j > 0) {
+					prev_block = addresses[j-1];
+					prev_block.next = j;
+					new_block.prev = j - 1;
+//					cout << j << endl;
+				}
+				addresses[j++] = new_block;
+				cout << new_block.record_count << endl;
+				i = 0;
+			}
+			cout << temp << endl;
+			new_block.data[i] = record;
+			new_block.record_count = i+1;
+			i++;
+		}
+		if(new_block.record_count > 0) {
+			prev_block = addresses[j-1];
+			prev_block.next = j;
+			new_block.prev = j - 1;
+//			cout << j << endl;
+			addresses[j++] = new_block;
+		}
+	}
+	
+	else {
+		cout << "File does not exist!!!..Please try again.." << endl;
+	}
+	
+	Block block;
+	Record r;
+	block = addresses[3];
+	r = block.data[2];
+	cout << "HERE: " << r.zip << endl;
+	
+//	cout << block.prev << endl;
+	
+}
+
+// by khuong
+void S_Set::readIn(string aString, string& anInput1, string &anInput2) {
+	char temp;
+	anInput1="";
+	anInput2="";
+	
+	for(int i = 0; i < aString.size(); i++) {
+		temp = aString[i];
+		if(isdigit(temp)) {
+			anInput1 += temp;
+		}
+		else{
+			anInput2 += temp;
+		}
+	}
 }
 
 //public insert() function by Khuong
@@ -143,11 +234,13 @@ void S_Set::insert() {
 int main()
 {   S_Set sSet;
     char add;
-    do {
+/*    do {
 		sSet.insert();
 		cout << endl << "Add more record(Y/N): ";
 		cin >> add;
-	} while(add == 'Y' || add == 'Y');
+	} while(add == 'Y' || add == 'Y'); */
+ 
+    sSet.create();	
  
     cout << "That's all, folks!" << endl;
     return 0;
