@@ -180,6 +180,115 @@ void S_Set::create() {
 	
 }
 
+
+void S_Set::open(string filename)     // by khim
+{
+
+	fstream data(filename, ios::in);
+	Record test;
+
+	if (!data) {
+		cout << "Error opening file. Program aborting.\n";
+	}
+	else
+		cout << "File opened. \n";
+}
+
+void S_Set::del()                     //by khim
+{
+	int input;
+	fstream data("Record.txt", ios::in);
+	Record test;
+
+	if (!data) {
+		cout << "Error opening file. Program aborting.\n";
+		return;
+	}
+
+	cout << "Please enter the Zip Code you want to update for: ";
+	cin >> input;
+
+
+
+	while (data)
+	{
+		data.read(reinterpret_cast<char*>(&test),
+			sizeof(test));
+
+		if (input == test.zip) {
+
+			int position = data.tellp();
+			data.close();
+			data.clear();
+			data.open("cookies.txt", ios::binary | ios::out);
+		}
+			// Read the next record from the file.
+			data.read(reinterpret_cast<char*>(&test),
+				sizeof(test));
+		}
+		return;
+
+
+}
+
+void S_Set::update() // by khim
+{
+	int input;
+	fstream data("Record.txt", ios::in);
+	Record test;
+
+	if (!data) {
+		cout << "Error opening file. Program aborting.\n";
+		return;
+	}
+
+	cout << "Please enter the Zip Code you want to update for: ";
+	cin >> input;
+
+	
+
+	while (data)
+	{
+		data.read(reinterpret_cast<char*>(&test),
+			sizeof(test));
+
+		if (input == test.zip) {
+
+			int position = data.tellp();
+			data.close();
+			data.clear();
+			data.open("Record.txt", ios::binary | ios::out);
+			string street, state, county;
+
+			
+			cout << "Enter new street name: ";
+			cin >> street;
+			test.street_length = street.length();		//set street length
+			strcpy(test.street, street.c_str());		//copy string street to array char
+			cout << "Enter new state name: ";
+			cin >> state;
+			strcpy(test.state, state.c_str());		//copy string state to array char
+			cout << "Enter new county: ";
+			cin >> county;
+			test.county_length = county.length();		//set county length
+			strcpy(test.county, county.c_str());		//copy string county to array char
+			cout << "Enter new latitude: ";
+			cin >> test.latitude;
+			cout << "Enter new longitude: ";
+			cin >> test.longitude;
+
+			data.seekp(position - sizeof(test), ios::cur);
+			data.write(reinterpret_cast<char*>(&test), sizeof(test));
+		}
+		// Read the next record from the file.
+		data.read(reinterpret_cast<char*>(&test),
+			sizeof(test));
+	}
+	return;
+
+}
+
+
 // by khuong
 void S_Set::readIn(string aString, string& anInput1, string &anInput2) {
 	char temp;
