@@ -1,0 +1,750 @@
+#include "BPTharddrive.h"
+#include <string>
+#include <iostream>
+#include <iomanip>
+
+/**
+\fn void recordCopy(record & copied, record & original)
+\details A function which takes in two records and copies one
+to the other.
+\return No return value
+\pre Two valid record structs are passed by reference.
+\post The original is copied over and the copied value is changed.
+*/
+void recordCopy(record & copied, record & original)
+{
+	cout << "Entering recordCopy function";
+	copied.zipCode = original.zipCode;
+	copied.data = original.data;
+	cout << "-Exiting recordCop function" << endl;
+}
+
+/**
+\fn ostream & operator<<(ostream & out, record & r)
+\details Overloaded insertion operator for output.
+\return A referenced ostream value passed as out.
+\pre A valid ostream object and record struct both passed by reference.
+\post ostream object out is returned to proceed to output.
+*/
+ostream & operator<<(ostream & out, record & r)
+{
+	cout << "Entering record output";
+	out << setw(6) << left << r.zipCode << '|' 
+		<< setw(100) << right << r.data << endl;
+	cout << "-Exiting record output" << endl;
+	return out;
+}
+
+sequenceSet::~sequenceSet()
+{
+	cout << "deleting sequence set";
+	
+	cout << "-sequence set deleted";
+}
+
+void sequenceSet::split(sequenceSet* nextNode)
+{
+	cout << "entering split function";
+	record temp;
+	for (int i = 2; i < 4; i++)
+	{
+		recordCopy(temp, this->address[i]);
+		recordCopy(nextNode->address[i - 2], temp);
+		this->address[i].data.clear();
+		this->address[i].zipCode = 0;
+	}
+	nextNode->mainKey = nextNode->address[0].zipCode;
+	nextNode->next = this->next;
+	nextNode->prev = this->mainKey;
+	this->next = nextNode->mainKey;
+	this->nextPtr = nextNode;
+	cout << "-exiting split function" << (*this) << endl;
+}
+
+void sequenceSet::addElement(record r)
+{
+	cout << "Entering addElement function, r is " << r;
+	int i = getIndex(r.zipCode);
+	cout << "The index value that was found " << i;
+	record temp1;
+	for (int j = i; j < 4 - i && r.zipCode != 0; j++)
+	{
+		recordCopy(temp1, address[j]);
+		recordCopy(address[j], r);
+		recordCopy(r, temp1);
+	}
+	if (i = 0)
+	{
+		mainKey = address[0].zipCode;
+	}
+	cout << "Exiting addElement function" << address[0] << endl;
+}
+
+bool sequenceSet::deleteRecord(record r)
+{
+	cout << "Entering deleteRecord function";
+	bool temp = false;
+	int i = getIndex(r.zipCode);
+	this->address[i].zipCode = 0;
+	this->address[i].data.clear();
+	if (i < 3)
+	{
+		int j = i + 1;
+		for (; j < 4
+			&& this->address[j].zipCode != 0; j++)
+		{
+			recordCopy(this->address[j - 1],
+				this->address[j]);
+		}
+		this->address[j].zipCode = 0;
+		this->address[j].data.clear();
+	}
+	this->mainKey = this->address[0].zipCode;
+
+	cout << "-exiting deleteRecord" << (*this) << endl;
+	return temp;
+}
+
+ostream & operator<<(ostream & out, sequenceSet & s)
+{
+	cout << "Entering sequenceSet output function";
+	string temp = "|";
+	temp += s.getMainKey();
+	temp += '|';
+	temp += s.getPrev();
+	temp += '|';
+	temp += s.getNext();
+	temp += '\n';
+	out << temp;
+	for (int i = 0; i < 4; i++)
+	{
+		out << s.getAddress(i);
+	}
+	cout << "Exiting sequenceSet output function";
+	return out;
+}
+
+void sequenceSet::insertion(record r, sequenceSet* newNode)
+{
+	cout << "Entering insertion function";
+	if (isFull())
+	{
+		this->split(newNode);
+		if (nextPtr->getMainKey() < r.zipCode)
+		{
+			nextPtr->addElement(r);
+		}
+	}
+	else
+	{
+		addElement(r);
+	}
+	cout << "-Exiting insertion function" << (*this) << endl;
+}
+
+void sequenceSet::setAddress(record & r, int index)
+{
+	cout << "Entering setAddress function";
+	recordCopy(address[index], r);
+	cout << "Exiting setAddress function";
+};
+
+
+
+
+
+
+
+
+//this is main.cpp
+#include <cstdlib>
+#include <fstream>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <stdlib.h>
+using namespace std;
+
+
+#include "BPTharddrive.h"
+void displayMenu();
+void openFile(ifstream & inputF, ofstream & outputF);
+void outputFile(ofstream & outputF);
+void output();
+void insertFile(sequenceSet& s, sequenceSet* s1);
+void deleteFile();
+void printInformation();
+
+
+
+int main()
+{
+	int choice;
+	ifstream inFile;
+	ofstream outFile;
+	sequenceSet s;
+	sequenceSet* s1;
+	s1 = new(nothrow) sequenceSet;
+	displayMenu();
+	cin >> choice;
+
+	do
+	{
+		if (choice == 1)
+		{
+			openFile(inFile, outFile);
+		}
+
+		else if (choice == 2)
+		{
+			insertFile(s, s1);
+
+		}
+		else if (choice == 3)
+		{
+			deleteFile();
+
+		}
+		else if (choice == 4)
+		{
+			printInformation();
+
+		}
+		else if (choice == 5)
+		{
+
+		}
+		else if (choice >6)
+		{
+			cout << "The choice is invalid \n";
+			break;
+		}
+
+		displayMenu();
+		cin >> choice;
+
+
+	} while (choice <= 5);
+
+	return 0;
+
+}
+
+void displayMenu()
+{
+	cout << "Please Choose your options: \n";
+	cout << "1.to open and readfile \n";
+	cout << "2.to insert a record \n";
+	cout << "3.to delete a record \n";
+	cout << "4.to print information \n "
+		<< "5.to sort input file into blocks and records \n";
+	cout << "6.to exit \n ";
+	cout << endl;
+}
+
+void openFile(ifstream & inputF, ofstream & outputF)
+{
+	string inFileName;
+	cout << endl;
+	cout << "Please enter a input file name (Zip for class text file.): ";
+	cin >> inFileName;
+	inFileName += ".txt";
+	inputF.open(inFileName.c_str());
+	if (!inputF)
+	{
+		cout << "Error file was not found." << endl;
+	}
+	else
+	{
+		cout << "File successfully opened and read." << endl;
+		outputFile(outputF);
+	}
+
+
+}
+
+void outputFile(ofstream & outputF)
+{
+	string outFileName;
+
+	cout << endl << "Please enter an output file name (other than ZipOutput): ";
+	cin >> outFileName;
+	outFileName += ".txt";
+	outputF.open(outFileName.c_str());
+	if (!outputF)
+	{
+		cout << "Error file was not found." << endl;
+	}
+	else
+	{
+		cout << "File successfully opened." << endl;
+	}
+}
+
+void insertFile(sequenceSet & s, sequenceSet * s1)
+{
+	record r;
+	int zip;
+	string city;
+	cout << "Please enter a zip code \n";
+	cin >> zip;
+	cout << "Please enter a city name \n";
+	cin >> city;
+	r.zipCode = zip;
+	r.data = city;
+	s.insertion(r, s1);
+	cout<<"Record successfully added \n";
+
+	}
+
+	void deleteFile()
+	{
+
+	}
+
+	void printInformation()
+	{
+
+	}
+
+
+
+
+
+	/*
+
+
+	cin >> filename;
+	infile1.open(filename);
+	while (infile1.fail())
+	{
+	cout << "Entered file is invalid" << endl;
+	cout << "Enter the input file name: ";
+	cin >> filename;
+	infile1.open(filename);
+	}
+	cout << "Enter the name of the index set file: ";
+	cin >> outputfile;
+	infile2.open(outputfile);
+	if (infile2.fail())	// checking if our index set exist
+	{
+	infile2.close();
+	outfile.open(outputfile);
+	index_set_flag = true;	//we need to write index set to the output
+	}
+	int count_data;	//counter variable to count the number of data skipped while building sequence set
+	if (index_set_flag)
+	{
+	//building new sequence set or index set
+	getline(infile1, record);
+	outfile << "int";
+	while (!infile1.eof())
+	{
+	getline(infile1, record);
+	//cout<<record<<endl;
+	for (int i = 0; i<5; i++) { key[i] = record[i]; }
+	cout << key;
+	outfile << "|" << key << count;
+	count_data = 1;
+	for (int j = 0; j<4; j++)
+	{
+	getline(infile1, record);
+	if (!infile1.eof())
+	count_data++;
+	else
+	break;
+	}
+	if (!infile1.eof())
+	count++;
+	}
+	outfile << "|" << endl;
+	outfile.close();
+	infile2.open(outputfile);
+	}
+	long i, n;
+	bool j;
+	long t;
+	char ch;
+	infile2.get(ch);     //to get int from the input file
+	infile2.get(ch);		//gets '|' and ignores it.
+	while (!infile2.eof())		//Reads until the end of file.
+	{
+	infile2.get(ch);
+	while (ch != '|')		//Unless '|' is found
+	{
+	infile2.get(ch);
+	}
+	infile2 >> t;	//Gets any integer from the file.
+	cout << t << endl;
+	cout << "Inserting the value " << t << endl;
+	s.Insertion(t);
+	}
+	while (option != 4)
+	{
+	cout << "Please choose your options" << endl;
+
+	cout << "1 to open and readfile \n";
+	cout << "2 to print information\n";
+	cout << "3 to insert a record\n";
+	cout << "4 to delete a record\n";
+	cout << "5  to exit\n"; << endl;
+	cin >> option;
+	switch (option)
+	{
+
+	case'1';
+	cout << "Enter a filename to open and read \n';
+	infile1.open(filename)
+
+	case'2'
+	cout << "Enter a filename with new records \n";
+	cin >> newrecord;
+	//cin >> t;	// it takes long values
+
+	newrecord_file.open(newrecord);//reading from the new record file actually opening the new record file to read from it
+	//infile1.close();
+	//infile1.open(filename); //was trying to open the previous record file to write on it
+	while (!newrecord.eof())
+	{
+	getline(newrecord, record);
+
+	infile1 << record;	//updating our record file
+
+	for (int i = 0; i<5; i++) { key[i] = record[i]; }
+	if (count_data == 5)
+	{
+	count++;
+	t = atol(key);
+	t = t * 1000 + count;
+	b.Insert(t);
+	}
+	else
+	count_data++;
+	}
+	break;
+	case'3': delete
+	printf("enter the value to be deleted");
+	cin >> t;
+	b.Delete(t);
+
+	break;
+
+	//case'4': Exitbreak;
+	case'4': printf("Exit"); return 0; break;
+	default: break;
+
+	}
+
+	}
+
+
+	return 0;
+	} */
+
+	/**
+	\fn void insertNewElement(record r, sequenceSet* s)
+	\details Inserts a new element.
+	\return No return value
+	\pre record and sequenceSet pointer are passed.
+	\post value is inserted.
+	*/
+	/*
+	void insertNewElement(record r, sequenceSet* s)
+	{
+	s->insertion(r);
+	}
+
+
+
+	\fn int findIndex(vector<int> & keyList, int key)
+	\details Finds the index of the search key.
+	\return returns the index
+	\pre vector is passed by reference, key is passed.
+	\post index is returned
+
+	int findIndex(vector<int> & keyList, int key)
+	{
+	int i = 0;
+	while (keyList[i] < key && i <= keyList.size())
+	{
+	i++;
+	}
+	return i - 1;
+	}
+
+
+	\fn void readInSSet(sequenceSet* s)
+	\details Takes care of the input of the sequenceSet.
+	\return No return value.
+	\pre sequenceSet is passed.
+	\post sequenceSet is altered with values.
+
+	void readInSSet(sequenceSet* s)
+	{
+
+	}*/
+  
+  
+  
+  //the read file
+  /**
+	\file BPTharddrive.h
+	\class sequenceSet
+	\brief sequenceSet - an ordered lowest-level node which contains the previous node key and the next node key along with an array of records.
+
+	\invariant 
+	1. Items in the sets are in ascending order.
+	2. When there is no previous key it equals -1.
+	3. When there is no next key it equals -1.
+
+	This class is an ordered linked list of arrays of addresses obtained from
+	a file. There will only at any point be one to two sequenceSet objects
+	in memory. In all other cases they will be on the disk in a txt file.
+*/
+
+#ifndef B_P_TREE
+#define B_P_TREE
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+/**
+	\struct record 
+	\brief record - Holds zipcodes and the string data for the rest of the program.
+*/
+struct record
+{
+	int zipCode;
+	string data;
+};
+
+/**
+\fn void recordCopy(record & copied, record & original)
+\details A function which takes in two records and copies one
+to the other.
+\return No return value
+\pre Two valid record structs are passed by reference.
+\post The original is copied over and the copied value is changed.
+*/
+void recordCopy(record & copied, record & original);
+
+/**
+\fn ostream & operator<<(ostream & out, record & r)
+\details Overloaded insertion operator for output.
+\return A referenced ostream value passed as out.
+\pre A valid ostream object and record struct both passed by reference.
+\post ostream object out is returned to proceed to output.
+*/
+ostream & operator<<(ostream & out, record & r);
+
+class sequenceSet
+{
+public:
+
+	/**
+	\fn sequenceSet()
+	\details Constructor for the sequenceSet class. Defaults to prev = -1, 
+	next = -1, mainKey = 0, nextPtr = NULL.
+	\return No return value.
+	\pre None
+	\post A sequenceSet object is created.
+	*/
+	sequenceSet() :prev(-1), next(-1), mainKey(0), nextPtr(NULL) 
+	{
+		address[0].zipCode = 0; address[0].data.clear();
+	};
+
+	/**
+	\fn ~sequenceSet()
+	\details Destructor for the sequenceSet class. Deletes itself.
+	\return No return value.
+	\pre A valid sequenceSet object exists.
+	\post Object and memory is unallocated.
+	*/
+	~sequenceSet();
+
+	/**
+	\fn void split(sequenceSet* nextNode)
+	\details Splits a full sequenceSet node and sets the now half full node's
+	nextPtr to the new next node while updating all other necessary variables.
+	\return No return value.
+	\pre A node is full and/or user wants to split node, also a new nextNode
+	is created.
+	\post The node is split, it's nextPtr value equals nextNode and all 
+	necessary variables are altered.
+	*/
+	void split(sequenceSet* nextNode);
+
+	/**
+	\fn void addElement(record r)
+	\details Adds an element to a non-full sequenceSet.
+	\return sequenceSet with element inserted.
+	\pre A sequenceSet exists and a record is passed.
+	\post The record is added to the address array of records.
+	*/
+	void addElement(record r);
+
+	/**
+	\fn bool deleteRecord(record r)
+	\details Removes a record from the sequenceSet.
+	\return A boolean stating if the set is empty.
+	\pre A record exists within the sequenceSet.
+	\post The recorsd is removed and the boolean is returned.
+	*/
+	bool deleteRecord(record r);
+
+	/**
+	\fn void insertion(record r)
+	\details Manages the insertion of elements into a sequence set. Determines
+	whether splitting is necessary or if just the element can be inserted.
+	\return No return value
+	\pre A sequenceSet exists and a record r is passed to it.
+	\post The value r is inserted into the sequenceSet.
+	*/
+	void insertion(record r, sequenceSet* newNode);
+
+	/**
+	\fn int sizeOf()
+	\details Returns the size of the sequenceSet.
+	\return The size of the sequenceSet.
+	\pre Existing sequenceSet
+	\post An int value representing the size is returned.
+	*/
+	int sizeOf() { return sizeof(this);  };
+
+	/**
+	\fn bool isEmpty()
+	\details Checks if the sequenceSet is empty.
+	\return A boolean representing emptiness.
+	\pre An existing sequenceSet.
+	\post Boolean is returned.
+	*/
+	bool isEmpty() { return (this->address[0].zipCode == 0); };
+
+	/**
+	\fn int getPrev()
+	\details Gets the previous key.
+	\return Integer representing the previous key value
+	\pre An existing sequenceSet.
+	\post the previous value is returned.
+	*/
+	int getPrev() { return prev; };
+
+	/**
+	\fn int getNext()
+	\details Gets the next key.
+	\return The next key.
+	\pre An existing sequenceSet.
+	\post The next key is returned.
+	*/
+	int getNext() { return next; };
+
+	/**
+	\fn int getMainKey()
+	\details Gets the mainKey.
+	\return The mainKey variable.
+	\pre An existing sequenceSet.
+	\post The mainKey variable is returned.
+	*/
+	int getMainKey() { return mainKey; };
+
+	/**
+	\fn void  setMainKey(int k)
+	\details Sets the main key to passed value.
+	\return No return value
+	\pre An existing sequenceSet and an integer for the set value.
+	\post mainKey is set the the int variable k.
+	*/
+	void  setMainKey(int k) { mainKey = k; };
+
+	/**
+	\fn void setNext(int k)
+	\details Sets the next key to the passed value.
+	\return No return value.
+	\pre An existing sequenceSet and an integer for the set value.
+	\post The next key is set to the integer k.
+	*/
+	void setNext(int k) { next = k; };
+
+	/**
+	\fn void setPrev(int k)
+	\details Sets the prev key value to the passed value.
+	\return No return value.
+	\pre An existing sequenceSet and an integer for the set value.
+	\post prev is set to the integer k.
+	*/
+	void setPrev(int k) { prev = k; };
+
+	/**
+	\fn bool isFull()
+	\details Checks if the sequenceSet is full.
+	\return True if full, false if not.
+	\pre An existing sequenceSet.
+	\post The boolean stating fullness is returned.
+	*/
+	bool isFull() { return (address[3].zipCode != 0); };
+
+	/**
+	\fn void setNextPtr(sequenceSet * newNext)
+	\details Sets the nextPtr to the the passed sequenceSet pointer.
+	\return No return value.
+	\pre A valid sequenceSet and a passed sequenceSet pointer.
+	\post The nextPtr is set to the newNext pointer.
+	*/
+	void setNextPtr(sequenceSet * newNext) { nextPtr = newNext; };
+
+	/**
+	\fn sequenceSet * getNextPtr()
+	\details Gets the nextPtr from the sequenceSet object.
+	\return Returns a sequenceSet pointer that was contained in nextPtr. 
+	\pre A valid sequenceSet.
+	\post The nextPtr is returned.
+	*/
+	sequenceSet * getNextPtr() { return nextPtr; };
+
+	/**
+	\fn record & getAddress(int index) 
+	\details Gets the address of a specific place within the record struct.
+	\return The record correlating to the index we are searching for is returned.
+	\pre An index integer is passed.
+	\post The record containing the searched value is returned.
+	*/
+	record & getAddress(int index) 
+	{ return address[index]; };
+
+	int getIndex(int zip)
+	{
+		int i = 0;
+		for (; i < 4 && address[i].zipCode < zip && address[i].zipCode != 0; i++)
+		{}
+		return i;
+	}
+
+	/**
+	\fn void setAddress(record & r, int index)
+	\details Sets the address at a position when given the index and the 
+	record to replace it with.
+	\return No return value.
+	\pre A record and index position are passed.
+	\post The record at the index position is replaced with the r.
+	*/
+	void setAddress(record & r, int index);
+
+private:
+	int prev, next, mainKey;
+	record address[4];
+	sequenceSet* nextPtr;
+};
+
+/**
+\fn ostream * operator<<(ostream * out, sequenceSet & s)
+\details The overloaded output operator for the sequenceSet class.
+\return An ostream pointer.
+\pre A valid sequenceSet and ostream.
+\post The output is sent to the ostream.
+*/
+ostream & operator<<(ostream & out, sequenceSet & s);
+
+#endif
